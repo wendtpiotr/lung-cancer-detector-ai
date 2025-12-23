@@ -31,27 +31,42 @@ export default function UploadPage() {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile) return;
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append("image", selectedFile);
+    if (!selectedFile) return;
+    setLoading(true);
+    setError(null);
 
-        try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-          const response = await fetch(`${API_URL}/api/analyze`, {
-    method: "POST",
-    body: formData,
-});
-            if (!response.ok) throw new Error("Analysis failed. Server offline.");
-            const data = await response.json();
-            setResult(data);
-        } catch (err) {
-            setError(err.message || "Connection error");
-        } finally {
-            setLoading(false);
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+        // 1. Pobieramy URL i usuwamy ewentualny ukośnik na końcu, jeśli go dopisałeś w Vercelu
+        let baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860";
+        baseUrl = baseUrl.replace(/\/$/, ""); 
+
+        // 2. Uderzamy w /analyze (bez /api), co jest pewniejsze na Hugging Face
+        const response = await fetch(`${baseUrl}/analyze`, {
+            method: "POST",
+            // UWAGA: Nie dodawaj 'Content-Type': 'multipart/form-data'! 
+            // Przeglądarka sama to ustawi poprawnie wraz z "boundary", gdy przesyłasz FormData.
+            body: formData,
+        });
+
+        // 3. Obsługa błędów z informacją zwrotną z serwera
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(`Analysis failed (${response.status}). ${errorMsg.slice(0, 50)}`);
         }
-    };
+
+        const data = await response.json();
+        setResult(data);
+
+    } catch (err) {
+        console.error("Upload error:", err);
+        setError(err.message || "Connection error");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const riskStyles = {
         low: { color: "text-green-400", label: "Healthy / Benign", bg: "bg-green-500/10" },
