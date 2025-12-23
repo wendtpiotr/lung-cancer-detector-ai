@@ -38,10 +38,11 @@ export default function UploadPage() {
         formData.append("image", selectedFile);
 
         try {
-            const response = await fetch("http://localhost:5000/api/analyze", {
-                method: "POST",
-                body: formData,
-            });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+          const response = await fetch(`${API_URL}/api/analyze`, {
+    method: "POST",
+    body: formData,
+});
             if (!response.ok) throw new Error("Analysis failed. Server offline.");
             const data = await response.json();
             setResult(data);
