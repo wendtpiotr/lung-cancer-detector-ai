@@ -40,16 +40,14 @@ export default function UploadPage() {
 
     try {
         // 1. Pobieramy URL i usuwamy ewentualny ukośnik na końcu, jeśli go dopisałeś w Vercelu
-        let baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860";
-        baseUrl = baseUrl.replace(/\/$/, ""); 
+let baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://wendtpiotr-lung-tissue-ai.hf.space";
+baseUrl = baseUrl.replace(/\/$/, "");
 
-        // 2. Uderzamy w /analyze (bez /api), co jest pewniejsze na Hugging Face
-        const response = await fetch(`${baseUrl}/analyze`, {
-            method: "POST",
-            // UWAGA: Nie dodawaj 'Content-Type': 'multipart/form-data'! 
-            // Przeglądarka sama to ustawi poprawnie wraz z "boundary", gdy przesyłasz FormData.
-            body: formData,
-        });
+const response = await fetch(`${baseUrl}/api/analyze`, {
+    method: "POST",
+    body: formData,
+});
+
 
         // 3. Obsługa błędów z informacją zwrotną z serwera
         if (!response.ok) {
