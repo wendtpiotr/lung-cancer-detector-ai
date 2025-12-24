@@ -43,7 +43,7 @@ export default function UploadPage() {
 let baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://wendtpiotr-lung-tissue-ai.hf.space";
 baseUrl = baseUrl.replace(/\/$/, "");
 
-const response = await fetch(`${baseUrl}/analyze`, {
+const response = await fetch(`${baseUrl}/api/analyze`, {
     method: "POST",
     body: formData,
 });
